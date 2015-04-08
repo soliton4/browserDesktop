@@ -1,0 +1,35 @@
+{
+  "name": "browser-desktop",
+  "version": "0.0.1",
+  "author": {
+    "name": "Matthias Behrens",
+    "email": "matthias.behrens@gmail.com"
+  },
+  "description": "a remote desktop in your browser",
+  "main": ".index.js"
+  , "dependencies" : {
+    "promiseland":  "0.0.22",
+    "promiseland-webframework" :  "0.1.11",
+    "commander": "2.7.*"
+  },  
+  "keywords": [
+    "remote desktop"
+    , "browser desktop"
+    , "desktop"
+    , "ffmpeg"
+    , "h264"
+    , "h265"
+    , "avconv"
+    , "x11"
+    , "x11 terminal"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soliton4/browserDesktop"
+  },
+  "license": "GPLv3",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "readmeFilename": "README.md"
+}

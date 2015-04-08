@@ -1,0 +1,6 @@
+[submodule "Broadway"]
+	path = Broadway
+	url = https://github.com/mbebenita/Broadway
+[submodule "libde265.js"]
+	path = libde265.js
+	url = https://github.com/soliton4/libde265.js

@@ -1,0 +1,69 @@
+var cp = require "child_process";
+
+var spawn = cp.spawn;
+
+try{
+
+class Runner {
+  constructor: (par){
+    this.options = par;
+    this.start();
+  },
+  
+  start: (){
+    try{
+    var self = this;
+    if (this.running){
+      this.kill();
+    };
+    var stdoutFun = this.options.onStdout || (){};
+    var stderrFun = this.options.onStderr || (){};
+    var exitFun = this.options.onExit || (){};
+    if (this.options.cmd){
+      var cmd = this.options.cmd;
+      var params = this.options.parameter || [];
+      this.running = true;
+      this._process = spawn(cmd, params);
+      console.log("spawn ...");
+      if (this._process){
+        if (this._process.stdout){
+          this._process.stdout.on('data', stdoutFun);
+          this._process.stdout.on('error', stderrFun);
+        };
+        if (this._process.stderr){
+          this._process.stderr.on('data', stderrFun);
+          this._process.stderr.on('error', stderrFun);
+        };
+        this._process.on('close', (code) {
+          console.log("process close");
+          self.exitCode = code;
+          self.running = false;
+          self._process = undefined;
+          exitFun(code);
+        });
+      };
+    };
+    }catch(e){
+      console.log(e);
+    }
+  },
+  
+  writeStdin: (parData){
+    this._process.stdin.write(parData);
+  },
+  
+  kill: (){
+    if (this.running && this._process){
+      this.running = false;
+      this._process.kill();
+    };
+  }
+};
+  
+}catch(e){
+  console.log(e);
+};
+
+console.log(Runner);
+
+return Runner;

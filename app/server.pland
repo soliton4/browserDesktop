@@ -1,0 +1,322 @@
+
+var Runner;
+var isServer = false;
+
+var fs;
+
+() exclusive "server"{
+  try{
+  isServer = true;
+  Runner = require "./runner";
+  fs = require "fs";
+  
+  }catch(e){
+    console.log(e);
+  }
+  
+}();
+
+
+x11Geo () frame "server" {
+  
+  
+  var params = [
+    "-root", "_NET_DESKTOP_GEOMETRY"
+  ];
+  
+  var cb = new Callback();
+  var dataAr = [];
+        
+  var runner = new Runner({
+    cmd: 'xprop', 
+    parameter: params,
+    onStdout: function(data){
+      dataAr.push(data);
+    },
+    onExit: (){
+      cb();
+    }
+  });
+  
+  *cb.promise;
+  
+  var s = Buffer.concat(dataAr).toString("utf8");
+  
+  var ar = s.split("=");
+  var value = ar[ar.length - 1];
+  ar = value.split(",");
+  
+  var y = parseInt(ar.pop(), 10);
+  var x = parseInt(ar.pop(), 10);
+  return { x: x, y: y };
+  
+};
+
+
+/*
+ffmpeg -f x11grab -r 30 -s 1920x1080 -i :0+0,0 -an -pix_fmt yuv420p -f rawvideo -
+ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080  -pix_fmt yuv420p -i x.bin  -vcodec libx265 -an -preset ultrafast -f hevc -s 1920x1080 -tune zerolatency -b:v 400k -maxrate 400k -pass 1 -threads 4 -bufsize 4000k -g -1 -i_qoffset 800  -intra -bf 0 -x265-params keyint=-1:bitrate=400:preset=ultrafast:fps=30  htest16.hevc
+
+ffmpeg -f x11grab -r 10 -s 1024x768 -i :0+0,0 -an -pix_fmt yuv420p -f rawvideo - 
+| ffmpeg -f rawvideo -vcodec rawvideo -s 1024x768  -pix_fmt yuv420p -i - -vcodec libx265 -an -preset ultrafast -f hevc -s 1024x768 -tune zerolatency -b:v 400k -maxrate 400k -pass 1 -threads 4 -bufsize 4000k -g -1 -i_qoffset 800  -intra -bf 0 -x265-params keyint=-1:bitrate=400:preset=ultrafast:fps=10  htest16.hevc
+         -f rawvideo -vcodec rawvideo -s 1024x768  -pix_fmt yuv420p -i - -vcodec libx265 -an -preset ultrafast -f hevc -s 1024x768 -tune zerolatency -b:v 400k -maxrate 400k -pass 1 -threads 4 -bufsize 4000k -g -1 -i_qoffset 800  -intra -bf 0 -x265-params keyint=-1:bitrate=400:preset=ultrafast:fps=10 -
+
+
+-y -i sourceFile -r 30000/1001 -b:a 2M -bt 4M -vcodec libx264 -pass 1 -coder 0 -bf 0 -flags -loop -wpredp 0 -an targetFile.mp4
+
+
+avconv -re -f x11grab -r 30 -s 1920x1080 -i :0+0,0 -vcodec libx264 -preset ultrafast -b:v 20m -maxrate 20m -bufsize 4000k -pass 1 -coder 0 -flags -loop -tune zerolatency -threads 2 -an -t 180 -f h264 -s 1920x1080 -
+
+
+
+*/
+
+
+class type sync serve all Stream {
+  
+  constructor: (par){
+    par = par || {};
+    this.codec = par.codec || "h265";
+    
+    this.dataCallback = par.dataCallback;
+  },
+    
+  var codec: "h265",
+    
+  var getCmd (){
+    if (this.codec == "h264"){
+      return "avconv";
+    };
+    return "ffmpeg";
+  },
+    
+  var getPreCmd (){
+    if (this.codec == "h265"){
+      return "ffmpeg";
+    };
+  },
+    
+  var getPreParameter (){
+    var geo = *x11Geo();
+    var params = [];
+    
+    var addParam = (par1, par2){
+      params.push(par1);
+      if (par2){
+        params.push(par2);
+      };
+    };
+    var p = addParam;
+    
+    if (this.codec == "h265"){
+      p("-f", "x11grab");
+      p("-r", "30");
+      p("-s", "" + geo.x + "x" + geo.y);
+      p("-i", ":0+0,0");
+      p("-an");
+      p("-pix_fmt", "yuv420p");
+      p("-f", "rawvideo");
+      p("-");
+    }else{
+      return;
+    };
+    
+    var i = 0;
+    var cmdStr = "";
+    for (i = 0; i < params.length; ++i){
+      cmdStr += " " + params[i];
+    };
+    console.log(cmdStr);
+    
+    //console.log(params);
+    
+    return params;
+  },
+    
+  var getParameter (){
+    var geo = *x11Geo();
+    var params = [];
+    
+    var addParam = (par1, par2){
+      params.push(par1);
+      if (par2){
+        params.push(par2);
+      };
+    };
+    var p = addParam;
+    
+    
+    if (this.codec == "h264"){
+      //p("-y");
+      p("-f", "x11grab");
+      p("-r", "45");
+      p("-s", "" + geo.x + "x" + geo.y);
+      p("-i", ":0+0,0");
+      p("-vcodec", "libx264");
+      p("-bt", "4M");
+      p("-pass", "1");
+      p("-coder", "0");
+      p("-preset", "ultrafast");
+      p("-b:v", "1m");
+      p("-maxrate", "1m");
+      p("-bufsize");
+      p("4000k");
+      p("-bf", "0");
+      p("-flags");
+      p("-loop");
+      //p("-wpredp", "0");
+      p("-tune", "zerolatency");
+      //p("-threads", "2");
+      p("-an");
+      //p("-t", "180");
+      p("-f", "h264");
+      p("-s", "" + geo.x + "x" + geo.y);
+      p("-");
+    };
+    
+    if (this.codec == "h265"){
+      //ffmpeg -f rawvideo -vcodec rawvideo -s 1024x768  -pix_fmt yuv420p -i - -vcodec libx265 -an -preset ultrafast -f hevc -s 1024x768 -tune zerolatency -b:v 400k -maxrate 400k -pass 1 -threads 4 -bufsize 4000k -g -1 -i_qoffset 800  -intra -bf 0 -x265-params keyint=-1:bitrate=400:preset=ultrafast:fps=10  htest16.hevc
+      p("-f", "rawvideo");
+      p("-vcodec", "rawvideo");
+      p("-s", "" + geo.x + "x" + geo.y);
+      p("-pix_fmt", "yuv420p");
+      p("-i", "-"); // read from stdin
+      
+      p("-vcodec", "libx265");
+      p("-an");
+      p("-preset", "ultrafast");
+      p("-f", "hevc");
+      p("-s", "" + geo.x + "x" + geo.y);
+      p("-tune", "zerolatency");
+      //p("-b:v", "400k");
+      //p("-maxrate", "400k");
+      p("-pass", "1");
+      p("-threads", "4");
+      p("-bufsize", "4000k");
+      p("-g", "-1"); // -i_qoffset 800  -intra -bf 0 -x265-params keyint=-1:bitrate=400:preset=ultrafast:fps=10  htest16.hevc
+      p("-i_qoffset", "800");
+      p("-intra");
+      p("-bf", "0");
+      //p("-x265-params", "keyint=-1:bitrate=400:preset=ultrafast:fps=10");
+      //p("-x265-params", "keyint=-1:preset=ultrafast:tune=zerolatency");
+      
+      p("-");
+    };
+    
+    var i = 0;
+    var cmdStr = "";
+    for (i = 0; i < params.length; ++i){
+      cmdStr += " " + params[i];
+    };
+    console.log(cmdStr);
+    
+    //console.log(params);
+    
+    return params;
+  },
+    
+  var start (){
+    console.log("start ...");
+    Stream self = this;
+    
+    if (this.destroying){
+      return;
+    };
+    if (Runner){
+      
+      var preCmd = this.getPreCmd();
+      
+      
+      if (this._proc){
+        this._proc.start();
+      }else{
+        console.log("creating runner");
+        this._proc = new Runner({
+          cmd: this.getCmd(),
+          parameter: *this.getParameter(),
+          onStdout: (data){
+            /*if (fs){
+              console.log("appending");
+              try{
+                fs.appendFileSync("testfile", data);
+              }catch(e){
+                console.log(e);
+              };
+            };*/
+            self.dataFun(data.toString('base64'));
+          }
+        });
+      };
+      
+      
+      if (preCmd){
+        this._preProc = new Runner({
+          cmd: preCmd,
+          parameter: *this.getPreParameter(),
+          onStdout: (data){
+            //console.log("pre data:");
+            //console.log(data.length);
+            try{
+              self._proc.writeStdin(data);
+            }catch(e){
+              console.log(e);
+            };
+          }
+        });
+      };
+      
+      
+    };
+  },
+    
+  var dataFun (data){
+    if (this.dataCallback){
+      this.dataCallback(data);
+    };
+    
+  },
+    
+  destroy: (){
+    this.destroying = true;
+    if (this._proc){
+      this._proc.kill();
+    };
+  }
+  
+};
+
+Stream local;
+
+Stream* getStream (par) frame "server" {
+  Stream x = new Stream(par);
+  return x;
+};
+
+readFile() frame "server" {
+  var cb = new promiseland.CallbackErrorFirst();
+  fs.readFile("spreedmovie.hevc", cb);
+  return (*cb.promise).toString('base64');
+}
+
+
+var server = {
+  
+  getStream: (par){
+    /*var d = *readFile();
+    par.dataCallback(d);
+    return;*/
+    var dataCallback = par.dataCallback;
+    par.dataCallback = undefined;
+    local = *getStream(par);
+    local.dataCallback = dataCallback;
+    local.start();
+  },
+  
+  getGeo: (){
+    return *x11Geo();
+  }
+  
+};
+
+
+return server;
