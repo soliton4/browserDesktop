@@ -8,8 +8,8 @@
   "description": "a remote desktop in your browser",
   "main": ".index.js"
   , "dependencies" : {
-    "promiseland":  "0.0.22",
-    "promiseland-webframework" :  "0.1.11",
+    "promiseland":  "0.0.23",
+    "promiseland-webframework" :  "0.1.12",
     "commander": "2.7.*"
   },  
   "keywords": [
